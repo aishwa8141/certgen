@@ -20,7 +20,8 @@ public class HTMLTemplateFile extends HTMLTemplateProvider {
         HTML_TEMPLATE_NAME = fileName;
     }
 
-    private void fetchFile() {
+    private void
+    fetchFile() {
         File htmlTemplateFile = new File(getPath(HTML_TEMPLATE_NAME));
         try {
             content = FileUtils.readFileToString(htmlTemplateFile);
@@ -38,8 +39,7 @@ public class HTMLTemplateFile extends HTMLTemplateProvider {
     }
 
     private static String getPath(String file) {
-        ClassLoader loader = HTMLGenerator.class.getClassLoader();
-
+        ClassLoader loader = HTMLTemplateFile.class.getClassLoader();
         String result = null;
         try {
             result = loader.getResource(file).getFile();

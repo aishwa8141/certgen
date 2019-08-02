@@ -6,21 +6,28 @@ import com.google.zxing.WriterException;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+
+import org.incredible.CertificateGenerator;
 import org.incredible.certProcessor.CertModel;
 import org.incredible.certProcessor.CertificateFactory;
+import org.incredible.certProcessor.qrcode.AccessCodeGenerator;
 import org.incredible.certProcessor.qrcode.QRCodeGenerationModel;
 import org.incredible.certProcessor.qrcode.utils.QRCodeImageGenerator;
 import org.incredible.certProcessor.signature.KeyGenerator;
 import org.incredible.certProcessor.store.StorageParams;
 import org.incredible.certProcessor.views.HTMLGenerator;
 import org.incredible.certProcessor.views.HTMLTemplateFile;
+import org.incredible.certProcessor.views.HTMLZipProcessor;
 import org.incredible.certProcessor.views.PdfConverter;
 import org.incredible.pojos.CertificateExtension;
+import org.incredible.pojos.ob.exeptions.InvalidDateFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -54,11 +61,9 @@ public class Main {
     private static final String templateName = "template.html";
 
 
-    private static CertificateFactory certificateFactory = new CertificateFactory();
-
     private static CSVReader csvReader = new CSVReader();
 
-    private static Properties properties = certificateFactory.readPropertiesFile();
+    private static Properties properties = readPropertiesFile();
 
 
     /**
@@ -95,6 +100,8 @@ public class Main {
      * The private key file name
      */
     private static final String PRIVATE_KEY_FILENAME = WORK_DIR + "private.key";
+
+    final static String resourceName = "application.properties";
 
     /**
      * The public key pair
@@ -149,7 +156,7 @@ public class Main {
         logger.info("Finished reading the csv file");
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws MalformedURLException {
         readFile(modelFileName);
         initializeKeys();
         readCSV(getPath(csvFileName));
@@ -164,21 +171,54 @@ public class Main {
             property.put(key, value);
         }
 
+        CertificateFactory certificateFactory = new CertificateFactory();
+//        URL url = new URL("http://127.0.0.1:8080/certificate_pdf.zip");
+//        HTMLZipProcessor htmlZipProcessor = new HTMLZipProcessor(url);
+//        System.out.println("hii "+htmlZipProcessor.getTemplateContent());
 
-        for (int row = 0; row < certModelsList.size(); row++) {
-            try {
-                CertificateExtension certificate = certificateFactory.createCertificate(certModelsList.get(row), context, property);
-                listOfCertificate.add(certificate);
-                File file = new File(certificate.getId().split("Certificate/")[1] + ".json");
-                mapper.writeValue(file, certificate);
-                String url = uploadFileToCloud(file);
-                generateQRCode(certificate, certificate.getId() + ".json");
-                generateHtml(certificate);
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.error("exception while creating certificates {}", e.getMessage());
+
+//        try {
+//            URL url = new URL("http://127.0.0.1:8080/certificate_pdf.zip");
+//            htmlZipProcessor.getZipFileFromURl(url, new File("certificate"));
+//        } catch (IOException e) {
+//
+//        }
+
+//        for (int row = 0; row < certModelsList.size(); row++) {
+//            try {
+//
+//
+//                CertificateExtension certificate = certificateFactory.createCertificate(certModelsList.get(row), context, property.get("VERIFICATION_TYPE"));
+//                listOfCertificate.add(certificate);
+////                File file = new File(certificate.getId().split("Certificate/")[1] + ".json");
+////                mapper.writeValue(file, certificate);
+////                String url = uploadFileToCloud(file);
+////                System.out.println(url);
+//                generateQRCode(certificate, certificate.getId() + ".json");
+//                generateHtml(certificate);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                logger.error("exception while creating certificates {}", e.getMessage());
+//            }
+//        }
+        try {
+            CertificateGenerator certificateGenerator = new CertificateGenerator(property);
+            URL url = new URL("http://127.0.0.1:8080/certificate_pdf.zip");
+            HTMLZipProcessor htmlZipProcessor = new HTMLZipProcessor(url);
+            for (int row = 0; row < certModelsList.size(); row++) {
+                String response = certificateGenerator.createCertificate(certModelsList.get(row), htmlZipProcessor);
+                if (response == null) {
+                    logger.error("certificate is not generated due to html template");
+                } else
+                    logger.info("certificate has been generated for the id {}", response);
             }
+        } catch (InvalidDateFormatException e) {
+            e.printStackTrace();
+            logger.info("{}", e.getMessage());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
+
     }
 
 
@@ -213,7 +253,8 @@ public class Main {
     private static void generateQRCode(CertificateExtension certificateExtension, String url) {
         File Qrcode;
         QRCodeGenerationModel qrCodeGenerationModel = new QRCodeGenerationModel();
-        qrCodeGenerationModel.setText("123456");
+        AccessCodeGenerator accessCodeGenerator = new AccessCodeGenerator(Double.valueOf(property.get("ACCESS_CODE_LENGTH")));
+        qrCodeGenerationModel.setText(accessCodeGenerator.generate());
         qrCodeGenerationModel.setFileName(certificateExtension.getId().split("Certificate/")[1]);
         qrCodeGenerationModel.setData(url);
         QRCodeImageGenerator qrCodeImageGenerator = new QRCodeImageGenerator();
@@ -230,13 +271,14 @@ public class Main {
      * generate Html Template for certificate
      **/
     private static void generateHtml(CertificateExtension certificateExtension) throws Exception {
+
         String id = certificateExtension.getId().split("Certificate/")[1];
         HTMLTemplateFile htmlTemplateFile = new HTMLTemplateFile(templateName);
         HTMLGenerator htmlGenerator = new HTMLGenerator(htmlTemplateFile.getTemplateContent());
         if (htmlTemplateFile.checkHtmlTemplateIsValid(htmlTemplateFile.getTemplateContent())) {
             htmlGenerator.generate(certificateExtension);
             File file = new File(id + ".html");
-            uploadFileToCloud(file);
+//            uploadFileToCloud(file);
             convertHtmlToPdf(file, id);
         } else {
             throw new Exception("HTML template is not valid");
@@ -276,7 +318,9 @@ public class Main {
      */
 
     private static String uploadFileToCloud(File file) {
-        String url = StorageParams.upload(property.get("CONTAINER_NAME"), "", file, false);
+        StorageParams storageParams = new StorageParams(property);
+        storageParams.init();
+        String url = storageParams.upload(property.get("CONTAINER_NAME"), "", file, false);
         return url;
 
     }
@@ -309,6 +353,18 @@ public class Main {
         } catch (IOException ioException) {
             logger.info(ioException.getCause() + "message : " + ioException.getMessage());
         }
+    }
+
+    public static Properties readPropertiesFile() {
+        ClassLoader loader = CertificateFactory.class.getClassLoader();
+        Properties properties = new Properties();
+        try (InputStream resourceStream = loader.getResourceAsStream(resourceName)) {
+            properties.load(resourceStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.info("Exception while reading application.properties {}", e.getMessage());
+        }
+        return properties;
     }
 
 }

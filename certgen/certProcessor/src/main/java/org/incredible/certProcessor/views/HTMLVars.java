@@ -19,7 +19,7 @@ public class HTMLVars {
         $recipient,
         $course,
         $title,
-        $img,
+        $qrCodeImage,
         $dated,
         $dateInFormatOfWords,
         $signatoryName,

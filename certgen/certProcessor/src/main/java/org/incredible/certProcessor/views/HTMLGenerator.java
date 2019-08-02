@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class HTMLGenerator {
+public class HTMLGenerator  {
 
     private static Logger logger = LoggerFactory.getLogger(HTMLGenerator.class);
 
@@ -54,7 +54,7 @@ public class HTMLGenerator {
                 Method method = htmlVarResolver.getClass().getMethod("get" + capitalize(macro));
                 method.setAccessible(true);
                 context.put(macro, method.invoke(htmlVarResolver));
-                createHTMLFile(context, certificateExtension.getId().split("Certificate/")[1] + ".html");
+                createHTMLFile(context, certificateExtension.getId().split("Certificate/")[1]);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
                 logger.info("exception while generating html for certificate {}", e.getMessage());
@@ -65,10 +65,13 @@ public class HTMLGenerator {
 
     private void createHTMLFile(VelocityContext context, String id) {
         try {
-            Writer writer = new FileWriter(new File(id));
+            File file = new File(id + ".html");
+            Writer writer = new FileWriter(file);
             Velocity.evaluate(context, writer, "velocity", HtmlString);
             writer.flush();
             writer.close();
+            PdfConverter pdfConverter = new PdfConverter();
+            pdfConverter.convertor(file, id);
         } catch (IOException e) {
             logger.info("IO exception while creating html file :{}", e.getMessage());
         }

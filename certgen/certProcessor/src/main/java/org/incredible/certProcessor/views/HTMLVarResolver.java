@@ -29,7 +29,7 @@ public class HTMLVarResolver {
     }
 
 
-    public String getImg() {
+    public String getQrCodeImage() {
         return certificateExtension.getId().split("Certificate/")[1] + ".png";
     }
 

@@ -1,6 +1,7 @@
 package org.incredible.csvProcessor;
 
 import org.apache.commons.csv.CSVRecord;
+import org.incredible.pojos.ob.Issuer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,14 @@ public class CertModelFactory {
                 Class params = getParamType(methodName);
                 Method method = certModel.getClass().getMethod(methodName, params);
                 method.setAccessible(true);
-                method.invoke(certModel, csvRecord.get(member.getValue()));
+                if (!methodName.equals("setIssuer")) {
+                    method.invoke(certModel, csvRecord.get(member.getValue()));
+
+                } else {
+                    Issuer issuer = new Issuer("context");
+                    issuer.setName(csvRecord.get(member.getValue()));
+                    method.invoke(certModel, issuer);
+                }
             }
             return certModel;
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {

@@ -10,21 +10,27 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class HTMLZipProcessor extends HTMLTemplateProvider {
+public class HTMLTemplateZip extends HTMLTemplateProvider {
 
 
     private String content = null;
 
-    private static Logger logger = LoggerFactory.getLogger(HTMLZipProcessor.class);
+    private static Logger logger = LoggerFactory.getLogger(HTMLTemplateZip.class);
 
     private URL zipUrl;
 
-    public HTMLZipProcessor(URL zipUrl) {
+    public HTMLTemplateZip(URL zipUrl) {
         this.zipUrl = zipUrl;
     }
 
     private static final int bufferSize = 4096;
 
+    /**
+     * This  method is to download a zip file from the URL in the specified  target directory
+     *
+     * @param targetDirectory
+     * @throws IOException
+     */
     private void getZipFileFromURl(File targetDirectory) throws IOException {
         if (!targetDirectory.exists()) {
             targetDirectory.mkdirs();
@@ -38,6 +44,13 @@ public class HTMLZipProcessor extends HTMLTemplateProvider {
         unzip(zipFile, targetDirectory);
     }
 
+    /**
+     * This method is used to Extract each file in the given zipEntry (zipFile)
+     *
+     * @param inputStream
+     * @param outputStream
+     * @throws IOException
+     */
     private void extractFile(InputStream inputStream, OutputStream outputStream) throws IOException {
         byte[] buffer = new byte[bufferSize];
         int length = inputStream.read(buffer);
@@ -49,12 +62,20 @@ public class HTMLZipProcessor extends HTMLTemplateProvider {
         outputStream.close();
     }
 
+    /**
+     * This method is to unzip the zip file
+     *
+     * @param zip             zip file to extract
+     * @param targetDirectory directory to store Unzip files
+     * @throws IOException
+     */
     private void unzip(File zip, File targetDirectory) throws IOException {
         if (!zip.exists())
             throw new IOException(zip.getAbsolutePath() + " does not exist");
         if (!isDirectoryExists(targetDirectory))
             throw new IOException("Could not create directory: " + targetDirectory);
         ZipFile zipFile = new ZipFile(zip);
+        check(zipFile.entries());
         for (Enumeration entries = zipFile.entries(); entries.hasMoreElements(); ) {
             ZipEntry entry = (ZipEntry) entries.nextElement();
             File file = new File(targetDirectory, File.separator + entry.getName());
@@ -74,6 +95,12 @@ public class HTMLZipProcessor extends HTMLTemplateProvider {
         zipFile.close();
     }
 
+    /**
+     * This method is used to check whether the directory exists or not, if not it creates the directory
+     *
+     * @param file
+     * @return
+     */
     public static boolean isDirectoryExists(File file) {
         return file.exists() || file.mkdirs();
     }
@@ -84,6 +111,7 @@ public class HTMLZipProcessor extends HTMLTemplateProvider {
             try {
                 getZipFileFromURl(new File("src/main/resources/certificate"));
             } catch (IOException e) {
+                logger.info("Exception while unzip the zip file {}", e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -100,5 +128,14 @@ public class HTMLZipProcessor extends HTMLTemplateProvider {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void check(Enumeration<? extends ZipEntry> ZipEntries) {
+        for (Enumeration entryies = ZipEntries; ZipEntries.hasMoreElements(); ) {
+            ZipEntry entry = ZipEntries.nextElement();
+            System.out.println(entry.getName());
+
+        }
+
     }
 }

@@ -31,7 +31,7 @@ public class HTMLTemplateZip extends HTMLTemplateProvider {
      * @param targetDirectory
      * @throws IOException
      */
-    private void getZipFileFromURl(File targetDirectory) throws IOException {
+    private void getZipFileFromURl(File targetDirectory) throws Exception {
         if (!targetDirectory.exists()) {
             targetDirectory.mkdirs();
         }
@@ -69,34 +69,35 @@ public class HTMLTemplateZip extends HTMLTemplateProvider {
      * @param targetDirectory directory to store Unzip files
      * @throws IOException
      */
-    private void unzip(File zip, File targetDirectory) throws IOException {
+    private void unzip(File zip, File targetDirectory) throws Exception {
         if (!zip.exists())
             throw new IOException(zip.getAbsolutePath() + " does not exist");
         if (!isDirectoryExists(targetDirectory))
             throw new IOException("Could not create directory: " + targetDirectory);
         ZipFile zipFile = new ZipFile(zip);
-        check(zipFile.entries());
-        for (Enumeration entries = zipFile.entries(); entries.hasMoreElements(); ) {
-            ZipEntry entry = (ZipEntry) entries.nextElement();
-            File file = new File(targetDirectory, File.separator + entry.getName());
-            if (!isDirectoryExists(file.getParentFile()))
-                throw new IOException("Could not create directory: " + file.getParentFile());
-            if (!entry.isDirectory()) {
-                extractFile(zipFile.getInputStream(entry), new BufferedOutputStream(new FileOutputStream(file)));
-                if (entry.getName().endsWith("certificate_pdf/index.html")) {
-                    convertToString(zipFile.getInputStream(entry));
-                }
-            } else {
-                if (!isDirectoryExists(file)) {
-                    throw new IOException("Could not create directory: " + file);
+        if (isZipFileIsValid(zipFile.entries())) {
+            for (Enumeration entries = zipFile.entries(); entries.hasMoreElements(); ) {
+                ZipEntry entry = (ZipEntry) entries.nextElement();
+                File file = new File(targetDirectory, File.separator + entry.getName());
+                if (!isDirectoryExists(file.getParentFile()))
+                    throw new IOException("Could not create directory: " + file.getParentFile());
+                if (!entry.isDirectory()) {
+                    extractFile(zipFile.getInputStream(entry), new BufferedOutputStream(new FileOutputStream(file)));
+                    if (entry.getName().endsWith(".html")) {
+                        convertToString(zipFile.getInputStream(entry));
+                    }
+                } else {
+                    if (!isDirectoryExists(file)) {
+                        throw new IOException("Could not create directory: " + file);
+                    }
                 }
             }
-        }
+        } else throw new Exception("Zip file is not valid");
         zipFile.close();
     }
 
     /**
-     * This method is used to check whether the directory exists or not, if not it creates the directory
+     * This method is used to check  whether the directory exists or not, if not it creates the directory
      *
      * @param file
      * @return
@@ -110,7 +111,7 @@ public class HTMLTemplateZip extends HTMLTemplateProvider {
         if (content == null) {
             try {
                 getZipFileFromURl(new File("src/main/resources/certificate"));
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.info("Exception while unzip the zip file {}", e.getMessage());
                 e.printStackTrace();
             }
@@ -118,24 +119,36 @@ public class HTMLTemplateZip extends HTMLTemplateProvider {
         return content;
     }
 
+    /**
+     * This method is used to convert file input stream to string
+     *
+     * @param inputStream
+     */
     private void convertToString(InputStream inputStream) {
         StringWriter writer = new StringWriter();
         try {
             IOUtils.copy(inputStream, writer, "UTF-8");
             content = writer.toString();
-            System.out.println(content);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void check(Enumeration<? extends ZipEntry> ZipEntries) {
-        for (Enumeration entryies = ZipEntries; ZipEntries.hasMoreElements(); ) {
-            ZipEntry entry = ZipEntries.nextElement();
-            System.out.println(entry.getName());
-
+    /**
+     * This method is to check the number of files present is a zip with .html extension
+     *
+     * @param ZipEntries
+     * @return
+     */
+    private boolean isZipFileIsValid(Enumeration<? extends ZipEntry> ZipEntries) {
+        int noOfHTMLFiles = 0;
+        for (Enumeration entries = ZipEntries; entries.hasMoreElements(); ) {
+            ZipEntry entry = (ZipEntry) entries.nextElement();
+            if (entry.getName().endsWith(".html")) noOfHTMLFiles++;
         }
+        System.out.println("no of Html files " + noOfHTMLFiles);
+        if (noOfHTMLFiles == 1) return true;
+        else return false;
 
     }
 }

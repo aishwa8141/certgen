@@ -1,4 +1,2 @@
-CourseName,RecipientName,RecipientEmail,RecipientPhone,CertificateName,CertificateDescription,CertificateLogo,Issuer,IssuedDate,ValidFrom,"Expiry",SignatoryList,AssessedOn
- Sunbird installation ,Aishwarya,a.aish1997@gmail.com,9845978851,Certificate of Appreciation,Certificate of Appreciation in National Level ITI Grading,https://certs.example.gov/o/dgt/HJ5327VB1247G,NIIT,2019-08-31T12:52:25Z,2019-06-21,30D,,2019-2-14
-Data Science,swetha,Swetha@gmail.com,9845978851,Certificate of Completion,Certificate of Completion in data science,https://certs.example.gov/o/dgt/HJ5327VB1247G,NIIT,2019-07-06,2019-06-1,30D 1y,,2019-2-14
-  Java Programming Masterclass for Software Developers ,John,john@gmail.com,8951176516,Certificate of Completion,Certificate of Completion in java programming,https://certs.example.gov/o/dgt/HJ5327VB1247G,NIIT,2019-05-06,2019-06-21,2019-08-31T12:52:25Z,,2019-2-12
+CourseName,RecipientName,RecipientEmail,RecipientPhone,CertificateName,CertificateDescription,CertificateLogo,Issuer,IssuedDate,ValidFrom,"Expiry",SignatoryList,AssessedOn,identifier
+ Sunbird installation ,Aishwarya,a.aish1997@gmail.com,9845978851,Certificate of Appreciation,Certificate of Appreciation in National Level ITI Grading,https://certs.example.gov/o/dgt/HJ5327VB1247G,NIIT,2019-08-31T12:52:25Z,2019-06-21,30D,,2019-2-14,ntptest103

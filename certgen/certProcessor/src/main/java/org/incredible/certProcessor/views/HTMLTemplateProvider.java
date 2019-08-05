@@ -21,8 +21,12 @@ public abstract class HTMLTemplateProvider {
 
 
     public static Boolean checkHtmlTemplateIsValid(String htmlString) {
-        HTMLTemplateValidator htmlTemplateValidator = new HTMLTemplateValidator(storeAllHTMLTemplateVariables(htmlString));
-        return htmlTemplateValidator.validate();
+        if (htmlString == null)
+            return false;
+        else {
+            HTMLTemplateValidator htmlTemplateValidator = new HTMLTemplateValidator(storeAllHTMLTemplateVariables(htmlString));
+            return htmlTemplateValidator.validate();
+        }
     }
 
 

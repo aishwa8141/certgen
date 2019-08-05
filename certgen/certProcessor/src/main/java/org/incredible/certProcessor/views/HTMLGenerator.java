@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class HTMLGenerator  {
+public class HTMLGenerator {
 
     private static Logger logger = LoggerFactory.getLogger(HTMLGenerator.class);
 
@@ -30,7 +30,7 @@ public class HTMLGenerator  {
     }
 
 
-    public void initVelocity() {
+    private void initVelocity() {
         Velocity.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
         Velocity.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
         Velocity.init();

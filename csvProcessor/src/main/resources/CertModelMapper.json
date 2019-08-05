@@ -11,5 +11,6 @@
   "ValidFrom": "ValidFrom",
   "Expiry": "Expiry",
   "SignatoryList": "SignatoryList",
-  "AssessedOn": "AssessedOn"
+  "AssessedOn": "AssessedOn",
+  "Identifier": "Identifier"
 }

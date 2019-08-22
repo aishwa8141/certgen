@@ -3,6 +3,7 @@ package org.incredible.builders;
 
 import org.incredible.pojos.CertificateExtension;
 import org.incredible.pojos.CompositeIdentityObject;
+import org.incredible.pojos.SignatoryExtension;
 import org.incredible.pojos.Signature;
 import org.incredible.pojos.ob.BadgeClass;
 import org.incredible.pojos.ob.Evidence;
@@ -31,7 +32,7 @@ public class CertificateExtensionBuilder implements IBuilder<CertificateExtensio
     }
 
 
-    public CertificateExtensionBuilder setSignatory(Issuer[] signatory) {
+    public CertificateExtensionBuilder setSignatory(SignatoryExtension[] signatory) {
         certificateExtension.setSignatory(signatory);
         return this;
     }

@@ -23,8 +23,9 @@ public class HTMLTemplateValidator {
         List<String> allVars = HTMLVars.get();
         try {
             while (iterator.hasNext()) {
-                if (!allVars.contains(iterator.next())) {
-                    invalidVariables.add(iterator.next());
+                String htmlVar = iterator.next();
+                if (!allVars.contains(htmlVar)) {
+                    invalidVariables.add(htmlVar);
                 }
             }
             if (invalidVariables.size() == 0) {

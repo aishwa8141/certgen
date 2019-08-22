@@ -1,70 +1,52 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <style type="text/css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate</title>
+    <link href="css/style.css" rel="stylesheet">
+<body>
 
-    </style>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>$title</title>
-</head>
-<body style="text-align:-webkit-center;">
-<br/>
-<div class="container" style="border: 10px solid #787878; border-style: groove;
-width: 98rem">
-    <div class="row" style="text-align:center; border: 5px solid #787878; margin: 1rem;">
-        <div class="row">
-            <div class="col-sm-12" >
-                <h2 style="color: orange;">Ekstep foundation</h2>
-                <div class="row">
-                    <div class="col-sm-1"></div>
-
-                    <div class="col-sm-10">
-                        <p>7th Cross Road, KHB Block Koramangala, Koramangala 4-B Block, Koramangala 3 Block, Koramangala, Bangalore, Karnataka, IN</p>
-
-                    </div>
-                    <div class="col-sm-1"></div>
-
-                </div>
-            </div>
-        </div>
-        <br/>
-        <div class="col-sm-12 text-align-center">
-            <h1 style="color: orange;">Certificate of Completion</h1>
-            <br/>
-        </div>
-        <div class="col-sm-12 text-align-center">
-            <h4>This certificate is here by bestowed upon</h4>
-            <h1>$recipient</h1>
-            <p>for completing training for <span>$course</span> conducted at on ,<span>$dated</span></p>
-            <p>This activity was awarded by:</p>
-            <br/>
-            <br/>
-            <br/>
-        </div>
-
-
-        <div class="row">
-            <div class="col-sm-6">
-                <h4>$signatory</h4>
-                <hr style="width: inherit; "/>
-                <h5>$signatoryName</h5>
-                <br/>
-            </div>
-            <div class="col-sm-6">
-                <h4>$signatory</h4>
-                <hr style="width: inherit; "/>
-                <h5>$signatoryName</h5>
-                <br/>
+<table class="sb-certificate-table-ct">
+    <tr>
+        <td class="sb-certificate-table">
+            <img src="./images/gujarat-state-outline.svg" class="state-outline-img"/>
+            <img src="./images/certificate-frame.svg" class="certificate-frame"/>
+            <div class="sb-certificate-container">
+                <table width="100%" border="0" class="certificate-table-area">
+                    <tr class="sb-certificate-header">
+                        <td colspan="3">
+                            <div class="state-symbol">
+                                <img src="./images/gujarat-state-logo.png" class="sb-certificatePage-logo" alt="Government of Gujarat">
+                            </div>
+                            <p class="state-name">Government of Gujarat</p>
+                            <h1>Certificate of Completion</h1>
+                            <p class="certificate-details">This is to certify that Mr/Ms <strong>$recipientName</strong> has successfully completed the training "<strong>$courseName</strong>" on <strong>$issuedDate</strong>.</p>
+                        </td>
+                    </tr>
+                    <tr class="sb-certificate-footer">
+                        <td class="country-symbol">
+                            <img src="./images/DIKSHA.svg" class="sb-certificatePage-logo"/>
+                            <p>This document is digitally signed</p>
+                        </td>
+                        <td class="state-sign">
+                            <img src="$signatory0Image" class="sb-certificatePage-logo"/>
+                            <div class="sign-line"></div>
+                            <p>Director of GCERT</p>
+                        </td>
+                        <td class="certificate-qr-code">
+                            <img src="$qrCodeImage" width="60" class="sb-certificate-qrcode" />
+                            <p>Scan to verify certificate</p>
+                        </td>
+                    </tr>
+                </table>
 
             </div>
-        </div>
-    </div>
-
-</div>
+            <div class="sb-certificate-bg-"></div>
+        </td>
+    </tr>
+</table>
+​
+​
 </body>
-
 </html>

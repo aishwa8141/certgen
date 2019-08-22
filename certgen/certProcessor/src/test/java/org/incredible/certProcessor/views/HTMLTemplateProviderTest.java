@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 
 public class HTMLTemplateProviderTest {
 
-
+    String filePath;
     @Before
     public void setUp() throws Exception {
     }
@@ -24,7 +24,7 @@ public class HTMLTemplateProviderTest {
     public void TestValidHTMlTemplate() {
 
         HTMLTemplateFile htmlTemplateFile = new HTMLTemplateFile("ValidTemplate.html");
-        Boolean valid = HTMLTemplateProvider.checkHtmlTemplateIsValid(htmlTemplateFile.getTemplateContent());
+        Boolean valid = HTMLTemplateProvider.checkHtmlTemplateIsValid(htmlTemplateFile.getTemplateContent(filePath));
         assertEquals(true, valid);
 
     }
@@ -33,7 +33,7 @@ public class HTMLTemplateProviderTest {
     public void TestInValidHTMLTemplate() {
 
         HTMLTemplateFile htmlTemplateFile = new HTMLTemplateFile("InvalidTemplate.html");
-        Boolean valid = HTMLTemplateProvider.checkHtmlTemplateIsValid(htmlTemplateFile.getTemplateContent());
+        Boolean valid = HTMLTemplateProvider.checkHtmlTemplateIsValid(htmlTemplateFile.getTemplateContent(filePath));
         assertEquals(false, valid);
 
     }

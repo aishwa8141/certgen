@@ -18,6 +18,7 @@ public class Issuer extends OBBase {
 
     /**
      * URL of the awarding body, assessor or training body
+     * Mandatory member
      */
     private String url;
 

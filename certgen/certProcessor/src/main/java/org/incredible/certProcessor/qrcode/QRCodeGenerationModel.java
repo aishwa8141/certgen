@@ -4,19 +4,19 @@ package org.incredible.certProcessor.qrcode;
 public class QRCodeGenerationModel {
 
     private String data;
-    private String errorCorrectionLevel = "L";
-    private int pixelsPerBlock = 6;
-    private int qrCodeMargin = 4;
+    private String errorCorrectionLevel = "H";
+    private int pixelsPerBlock = 2;
+    private int qrCodeMargin = 3;
     private String text;
     private String textFontName = "Verdana";
-    private int textFontSize = 10;
-    private double textCharacterSpacing = 1;
+    private int textFontSize = 16;
+    private double textCharacterSpacing = 0.2;
     private int imageBorderSize = 0;
-    private String colorModel = "black";
+    private String colorModel = "Grayscale";
     private String fileName;
     private String fileFormat = "png";
-    private int qrCodeMarginBottom = 4;
-    private int imageMargin = 2;
+    private int qrCodeMarginBottom = 1;
+    private int imageMargin = 1;
 
     public int getImageMargin() {
         return imageMargin;

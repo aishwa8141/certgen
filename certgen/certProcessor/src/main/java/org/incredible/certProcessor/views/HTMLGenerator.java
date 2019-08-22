@@ -1,11 +1,6 @@
 package org.incredible.certProcessor.views;
 
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Iterator;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -13,6 +8,17 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.incredible.pojos.CertificateExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Iterator;
 
 
 public class HTMLGenerator {
@@ -30,7 +36,7 @@ public class HTMLGenerator {
     }
 
 
-    private void initVelocity() {
+    public void initVelocity() {
         Velocity.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
         Velocity.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
         Velocity.init();
@@ -42,7 +48,7 @@ public class HTMLGenerator {
      * @param certificateExtension
      */
 
-    public void generate(CertificateExtension certificateExtension) {
+    public void generate(CertificateExtension certificateExtension, String directory) {
         initVelocity();
         VelocityContext context = new VelocityContext();
         HTMLVarResolver htmlVarResolver = new HTMLVarResolver(certificateExtension);
@@ -54,26 +60,37 @@ public class HTMLGenerator {
                 Method method = htmlVarResolver.getClass().getMethod("get" + capitalize(macro));
                 method.setAccessible(true);
                 context.put(macro, method.invoke(htmlVarResolver));
-                createHTMLFile(context, certificateExtension.getId().split("Certificate/")[1]);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
                 logger.info("exception while generating html for certificate {}", e.getMessage());
             }
         }
-
+        createHTMLFile(context, getUUID(certificateExtension.getId()), directory);
     }
 
-    private void createHTMLFile(VelocityContext context, String id) {
+    private String getUUID(String id) {
         try {
-            File file = new File(id + ".html");
+            URI uri = new URI(id);
+            String path = uri.getPath();
+            String idStr = path.substring(path.lastIndexOf('/') + 1);
+            return StringUtils.substringBefore(idStr, ".");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void createHTMLFile(VelocityContext context, String id, String directory) {
+        try {
+            File file = new File(directory, id + ".html");
             Writer writer = new FileWriter(file);
             Velocity.evaluate(context, writer, "velocity", HtmlString);
             writer.flush();
             writer.close();
-            PdfConverter pdfConverter = new PdfConverter();
-            pdfConverter.convertor(file, id);
+            logger.info("html file is created {}", file.getName());
+            PdfConverter.convertor(file, id, directory);
         } catch (IOException e) {
-            logger.info("IO exception while creating html file :{}", e.getMessage());
+            logger.error("IO exception while creating html file :{}", e.getMessage());
         }
     }
 

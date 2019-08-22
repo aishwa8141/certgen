@@ -1,6 +1,7 @@
 package org.incredible.pojos.ob;
 
 
+import org.apache.commons.lang3.StringUtils;
 import org.incredible.pojos.CompositeIdentityObject;
 import org.incredible.pojos.ob.exeptions.InvalidDateFormatException;
 import org.incredible.pojos.ob.valuator.ExpiryDateValuator;
@@ -133,12 +134,13 @@ public class Assertion extends OBBase {
     }
 
     public void setExpires(String expires) throws InvalidDateFormatException {
-        ExpiryDateValuator valuator = new ExpiryDateValuator(this.getIssuedOn());
-        if (valuator.evaluates(expires) == null) {
-            throw new InvalidDateFormatException("Expiry date is in wrong format");
-        } else
-            this.expires = valuator.evaluates(expires);
-
+        if(StringUtils.isNotBlank(expires)) {
+            ExpiryDateValuator valuator = new ExpiryDateValuator(this.getIssuedOn());
+            if (valuator.evaluates(expires) == null) {
+                throw new InvalidDateFormatException("Expiry date is in wrong format");
+            } else
+                this.expires = valuator.evaluates(expires);
+        }
 
     }
 

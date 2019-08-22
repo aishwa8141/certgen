@@ -16,7 +16,7 @@ public class CertificateExtension extends Assertion {
     /**
      * List of IRIs to SignatoryExtension
      */
-    private Issuer[] signatory;
+    private SignatoryExtension[] signatory;
 
     /**
      * A HTTP URL to a printable version of this certificate.
@@ -53,11 +53,11 @@ public class CertificateExtension extends Assertion {
         this.awardedThrough = awardedThrough;
     }
 
-    public Issuer[] getSignatory() {
+    public SignatoryExtension[] getSignatory() {
         return signatory;
     }
 
-    public void setSignatory(Issuer[] signatory) {
+    public void setSignatory(SignatoryExtension[] signatory) {
         this.signatory = signatory;
     }
 

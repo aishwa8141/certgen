@@ -12,7 +12,7 @@ import java.util.HashSet;
 
 public abstract class HTMLTemplateProvider {
 
-    abstract public String getTemplateContent();
+    abstract public String getTemplateContent(String filePath) throws Exception;
 
     /**
      * variables present in html template
@@ -21,8 +21,7 @@ public abstract class HTMLTemplateProvider {
 
 
     public static Boolean checkHtmlTemplateIsValid(String htmlString) {
-        if (htmlString == null)
-            return false;
+        if (htmlString == null) return false;
         else {
             HTMLTemplateValidator htmlTemplateValidator = new HTMLTemplateValidator(storeAllHTMLTemplateVariables(htmlString));
             return htmlTemplateValidator.validate();

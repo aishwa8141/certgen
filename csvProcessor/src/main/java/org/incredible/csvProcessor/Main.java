@@ -1,5 +1,6 @@
 package org.incredible.csvProcessor;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.NotFoundException;
 import com.google.zxing.WriterException;
@@ -14,12 +15,17 @@ import org.incredible.certProcessor.qrcode.AccessCodeGenerator;
 import org.incredible.certProcessor.qrcode.QRCodeGenerationModel;
 import org.incredible.certProcessor.qrcode.utils.QRCodeImageGenerator;
 import org.incredible.certProcessor.signature.KeyGenerator;
+import org.incredible.certProcessor.signature.SignatureHelper;
 import org.incredible.certProcessor.store.StorageParams;
 import org.incredible.certProcessor.views.HTMLGenerator;
+
+import org.incredible.certProcessor.views.HTMLTempalteZip;
 import org.incredible.certProcessor.views.HTMLTemplateFile;
-import org.incredible.certProcessor.views.HTMLZipProcessor;
+
 import org.incredible.certProcessor.views.PdfConverter;
 import org.incredible.pojos.CertificateExtension;
+import org.incredible.pojos.CertificateResponse;
+import org.incredible.pojos.SignatoryExtension;
 import org.incredible.pojos.ob.exeptions.InvalidDateFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +117,7 @@ public class Main {
     /**
      * to get all the application properties
      */
-    private static HashMap<String, String> property = new HashMap<>();
+    private static Map<String, String> property = new HashMap<>();
 
     private static ArrayList<CertificateExtension> listOfCertificate = new ArrayList<>();
 
@@ -156,9 +162,9 @@ public class Main {
         logger.info("Finished reading the csv file");
     }
 
-    public static void main(String[] args) throws MalformedURLException {
+    public static void main(String[] args) throws Exception {
         readFile(modelFileName);
-        initializeKeys();
+//        initializeKeys();
         readCSV(getPath(csvFileName));
         initContext();
 
@@ -171,42 +177,13 @@ public class Main {
             property.put(key, value);
         }
 
-        CertificateFactory certificateFactory = new CertificateFactory();
-//        URL url = new URL("http://127.0.0.1:8080/certificate_pdf.zip");
-//        HTMLZipProcessor htmlZipProcessor = new HTMLZipProcessor(url);
-//        System.out.println("hii "+htmlZipProcessor.getTemplateContent());
-
-
-//        try {
-//            URL url = new URL("http://127.0.0.1:8080/certificate_pdf.zip");
-//            htmlZipProcessor.getZipFileFromURl(url, new File("certificate"));
-//        } catch (IOException e) {
-//
-//        }
-
-//        for (int row = 0; row < certModelsList.size(); row++) {
-//            try {
-//
-//
-//                CertificateExtension certificate = certificateFactory.createCertificate(certModelsList.get(row), context, property.get("VERIFICATION_TYPE"));
-//                listOfCertificate.add(certificate);
-////                File file = new File(certificate.getId().split("Certificate/")[1] + ".json");
-////                mapper.writeValue(file, certificate);
-////                String url = uploadFileToCloud(file);
-////                System.out.println(url);
-//                generateQRCode(certificate, certificate.getId() + ".json");
-//                generateHtml(certificate);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                logger.error("exception while creating certificates {}", e.getMessage());
-//            }
-//        }
         try {
             CertificateGenerator certificateGenerator = new CertificateGenerator(property);
-            URL url = new URL("http://127.0.0.1:8080/certificate_pdf.zip");
-            HTMLZipProcessor htmlZipProcessor = new HTMLZipProcessor(url);
+            URL url = new URL("https://drive.google.com/uc?authuser=1&id=1ryB71i0Oqn2c3aqf9N6Lwvet-MZKytoM&export=download");
+            HTMLTempalteZip htmlZipProcessor = new HTMLTempalteZip(url);
+            String directory = "src/main/resources/" + htmlZipProcessor.getZipFileName() +"/";
             for (int row = 0; row < certModelsList.size(); row++) {
-                String response = certificateGenerator.createCertificate(certModelsList.get(row), htmlZipProcessor);
+                CertificateResponse response = certificateGenerator.createCertificate(certModelsList.get(row), htmlZipProcessor,directory );
                 if (response == null) {
                     logger.error("certificate is not generated due to html template");
                 } else
@@ -215,9 +192,8 @@ public class Main {
         } catch (InvalidDateFormatException e) {
             e.printStackTrace();
             logger.info("{}", e.getMessage());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         }
+
 
     }
 
@@ -229,6 +205,12 @@ public class Main {
     public static CertModel getInputModel(CSVRecord csvRecord) {
         CertModelFactory certModelFactory = new CertModelFactory(csvProperties);
         CertModel model = certModelFactory.create(csvRecord);
+        SignatoryExtension signatoryExtension = new SignatoryExtension("http://localhost:8080/extensions/signatoryExtension.json");
+        signatoryExtension.setImage("https://upload.wikimedia.org/wikipedia/commons/4/44/Toby_signature_small.png");
+        signatoryExtension.setName("name");
+        signatoryExtension.setIdentity("id");
+        signatoryExtension.setDesignation("CEO");
+        model.setSignatoryList(new SignatoryExtension[] {signatoryExtension});
         logger.info("csv row => {}", csvRecord);
         logger.info("Model created is => {}", model.toString());
         return model;
@@ -255,7 +237,7 @@ public class Main {
         QRCodeGenerationModel qrCodeGenerationModel = new QRCodeGenerationModel();
         AccessCodeGenerator accessCodeGenerator = new AccessCodeGenerator(Double.valueOf(property.get("ACCESS_CODE_LENGTH")));
         qrCodeGenerationModel.setText(accessCodeGenerator.generate());
-        qrCodeGenerationModel.setFileName(certificateExtension.getId().split("Certificate/")[1]);
+        qrCodeGenerationModel.setFileName("src/main/resources/certificate/"+certificateExtension.getId().split("Certificate/")[1]);
         qrCodeGenerationModel.setData(url);
         QRCodeImageGenerator qrCodeImageGenerator = new QRCodeImageGenerator();
         try {
@@ -270,16 +252,13 @@ public class Main {
     /**
      * generate Html Template for certificate
      **/
-    private static void generateHtml(CertificateExtension certificateExtension) throws Exception {
+    private static void generateHtml(CertificateExtension certificateExtension, String directory) throws Exception {
 
         String id = certificateExtension.getId().split("Certificate/")[1];
-        HTMLTemplateFile htmlTemplateFile = new HTMLTemplateFile(templateName);
-        HTMLGenerator htmlGenerator = new HTMLGenerator(htmlTemplateFile.getTemplateContent());
-        if (htmlTemplateFile.checkHtmlTemplateIsValid(htmlTemplateFile.getTemplateContent())) {
-            htmlGenerator.generate(certificateExtension);
-            File file = new File(id + ".html");
-//            uploadFileToCloud(file);
-            convertHtmlToPdf(file, id);
+        HTMLTempalteZip htmlTemplateZip = new HTMLTempalteZip(new URL("http://127.0.0.1:8080/certificate_pdf.zip"));
+        HTMLGenerator htmlGenerator = new HTMLGenerator(htmlTemplateZip.getTemplateContent(directory));
+        if (htmlTemplateZip.checkHtmlTemplateIsValid(htmlTemplateZip.getTemplateContent(directory))) {
+            htmlGenerator.generate(certificateExtension, directory);
         } else {
             throw new Exception("HTML template is not valid");
         }
@@ -287,11 +266,6 @@ public class Main {
     }
 
 
-    private static void convertHtmlToPdf(File file, String id) {
-        PdfConverter pdfConverter = new PdfConverter();
-        pdfConverter.convertor(file, id);
-
-    }
 
     private static void initContext() {
         try {
@@ -318,12 +292,15 @@ public class Main {
      */
 
     private static String uploadFileToCloud(File file) {
-        StorageParams storageParams = new StorageParams(property);
-        storageParams.init();
-        String url = storageParams.upload(property.get("CONTAINER_NAME"), "", file, false);
-        return url;
+//        StorageParams storageParams = new StorageParams(property);
+//        storageParams.init();
+//        String url = storageParams.upload(property.get("CONTAINER_NAME"), "", file, false);
+//        return url;
 
+        return null;
     }
+
+
 
 
     private static KeyPair generateKeys() throws NoSuchAlgorithmException {

@@ -2,6 +2,7 @@ package org.incredible.certProcessor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.incredible.pojos.SignatoryExtension;
 import org.incredible.pojos.ob.Issuer;
 import org.incredible.pojos.ob.Profile;
 
@@ -34,7 +35,7 @@ public class CertModel {
     private Issuer issuer;
     private String validFrom;
     private String expiry;
-    private Profile[] signatoryList;
+    private SignatoryExtension[] signatoryList;
     private String assessedOn;
     private String identifier;
 
@@ -116,11 +117,11 @@ public class CertModel {
         return this;
     }
 
-    public Profile[] getSignatoryList() {
+    public SignatoryExtension[] getSignatoryList() {
         return signatoryList;
     }
 
-    public void setSignatoryList(Profile[] signatoryList) {
+    public void setSignatoryList(SignatoryExtension[] signatoryList) {
         this.signatoryList = signatoryList;
     }
 
@@ -158,6 +159,7 @@ public class CertModel {
         this.assessedOn = assessedOn;
     }
 
+
     public String getIdentifier() {
         return identifier;
     }
@@ -176,4 +178,5 @@ public class CertModel {
         }
         return stringRep;
     }
+
 }

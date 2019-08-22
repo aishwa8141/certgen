@@ -16,14 +16,15 @@ public class HTMLVars {
     }
 
     public enum SupportedVars {
-        $recipient,
-        $course,
+        $recipientName,
+        $courseName,
         $title,
         $qrCodeImage,
         $dated,
-        $dateInFormatOfWords,
-        $signatoryName,
-        $signatory
+        $issuedDate,
+        $signatory0Image,
+        $signatory0Designation,
+        $certificateName
     }
 }
 
